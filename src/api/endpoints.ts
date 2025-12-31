@@ -11,10 +11,12 @@ export interface TokenResponse {
 }
 
 export interface TokenHealth {
-  status: string;
-  detail?: string;
-  checked_at?: string;
+    token_present: boolean;
+    expires_at: string | null;
+    expires_in_seconds: number | null;
+    expires_soon: boolean;
 }
+
 
 export interface TokenDecodeRequest {
   token: string;
