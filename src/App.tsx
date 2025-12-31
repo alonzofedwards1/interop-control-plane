@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -7,12 +7,14 @@ import PatientDiscovery from './pages/PatientDiscovery';
 import TokenManager from './pages/TokenManager';
 
 const App: React.FC = () => {
+  const [token, setToken] = useState<string | null>(null);
+
   return (
     <Layout>
       <Dashboard />
-      <TokenManager />
-      <JwtDecoder />
-      <PatientDiscovery />
+      <TokenManager onTokenChange={setToken} currentToken={token} />
+      <JwtDecoder currentToken={token} />
+      <PatientDiscovery activeToken={token} />
     </Layout>
   );
 };
