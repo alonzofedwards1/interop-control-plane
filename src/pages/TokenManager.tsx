@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import Card from '../components/Card';
+import { apiConfigurationErrorMessage, isApiConfigured } from '../api/client';
 import { fetchToken, requestToken, TokenResponse } from '../api/endpoints';
 import { formatJson, parseJsonObject } from '../utils/json';
 
@@ -18,7 +19,7 @@ const TokenManager: React.FC<TokenManagerProps> = ({ onTokenChange, currentToken
 
   const handleRequestToken = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (loading) {
+    if (!isApiConfigured || loading) {
       return;
     }
     setLoading(true);
@@ -36,7 +37,7 @@ const TokenManager: React.FC<TokenManagerProps> = ({ onTokenChange, currentToken
   };
 
   const handleFetchToken = async () => {
-    if (fetching) {
+    if (!isApiConfigured || fetching) {
       return;
     }
     setFetching(true);
@@ -63,18 +64,20 @@ const TokenManager: React.FC<TokenManagerProps> = ({ onTokenChange, currentToken
           onChange={(event) => setRequestBody(event.target.value)}
           rows={6}
           spellCheck={false}
+          disabled={!isApiConfigured}
         />
         <div className="actions">
-          <button type="submit" disabled={loading}>
+          <button type="submit" disabled={!isApiConfigured || loading}>
             {loading ? 'Requesting…' : 'POST /api/auth/token'}
           </button>
-          <button type="button" onClick={handleFetchToken} disabled={fetching}>
+          <button type="button" onClick={handleFetchToken} disabled={!isApiConfigured || fetching}>
             {fetching ? 'Fetching…' : 'GET /api/auth/token'}
           </button>
         </div>
       </form>
 
       {error && <p className="error">{error}</p>}
+      {!isApiConfigured && <p className="warning">{apiConfigurationErrorMessage}</p>}
 
       <div className="token-state">
         <p>

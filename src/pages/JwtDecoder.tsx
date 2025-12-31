@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import Card from '../components/Card';
+import { apiConfigurationErrorMessage, isApiConfigured } from '../api/client';
 import { decodeToken, TokenDecodeResult } from '../api/endpoints';
 import { formatJson } from '../utils/json';
 
@@ -22,7 +23,7 @@ const JwtDecoder: React.FC<JwtDecoderProps> = ({ currentToken }) => {
 
   const handleDecode = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (loading || tokenInput.trim() === '') {
+    if (!isApiConfigured || loading || tokenInput.trim() === '') {
       return;
     }
     setLoading(true);
@@ -50,12 +51,14 @@ const JwtDecoder: React.FC<JwtDecoderProps> = ({ currentToken }) => {
           rows={4}
           spellCheck={false}
           placeholder="Paste a JWT here"
+          disabled={!isApiConfigured}
         />
-        <button type="submit" disabled={loading || tokenInput.trim() === ''}>
+        <button type="submit" disabled={!isApiConfigured || loading || tokenInput.trim() === ''}>
           {loading ? 'Decoding…' : 'POST /api/auth/token/decode'}
         </button>
       </form>
       {error && <p className="error">{error}</p>}
+      {!isApiConfigured && <p className="warning">{apiConfigurationErrorMessage}</p>}
       {decodeResult && (
         <div className="decode-result">
           <h3>Decoded</h3>

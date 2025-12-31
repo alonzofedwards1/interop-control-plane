@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import Card from '../components/Card';
+import { apiConfigurationErrorMessage, isApiConfigured } from '../api/client';
 import { fetchHealth, fetchTokenHealth, HealthStatus, TokenHealth } from '../api/endpoints';
 
 const Dashboard: React.FC = () => {
@@ -40,6 +41,12 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!isApiConfigured) {
+      setHealthError(apiConfigurationErrorMessage);
+      setTokenHealthError(apiConfigurationErrorMessage);
+      return;
+    }
+
     void loadSystemHealth();
     void loadTokenHealth();
   }, []);
@@ -48,7 +55,7 @@ const Dashboard: React.FC = () => {
     <div className="grid">
       <Card title="System Health">
         <p>Call-safe endpoint to verify control plane readiness.</p>
-        <button type="button" onClick={loadSystemHealth} disabled={loadingHealth}>
+        <button type="button" onClick={loadSystemHealth} disabled={!isApiConfigured || loadingHealth}>
           {loadingHealth ? 'Checking…' : 'Refresh Health'}
         </button>
         {systemHealth && (
@@ -69,11 +76,12 @@ const Dashboard: React.FC = () => {
           </ul>
         )}
         {healthError && <p className="error">{healthError}</p>}
+        {!isApiConfigured && <p className="warning">Configure REACT_APP_API_BASE_URL to enable health checks.</p>}
       </Card>
 
       <Card title="Token Health">
         <p>Verify token service availability before issuing credentials.</p>
-        <button type="button" onClick={loadTokenHealth} disabled={loadingTokenHealth}>
+        <button type="button" onClick={loadTokenHealth} disabled={!isApiConfigured || loadingTokenHealth}>
           {loadingTokenHealth ? 'Checking…' : 'Refresh Token Health'}
         </button>
         {tokenHealth && (
@@ -94,6 +102,7 @@ const Dashboard: React.FC = () => {
           </ul>
         )}
         {tokenHealthError && <p className="error">{tokenHealthError}</p>}
+        {!isApiConfigured && <p className="warning">Configure REACT_APP_API_BASE_URL to check token service readiness.</p>}
       </Card>
 
       <Card title="Operational Guidance">

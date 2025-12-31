@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
 import Card from '../components/Card';
+import { apiConfigurationErrorMessage, isApiConfigured } from '../api/client';
 import {
   PatientDiscoveryTriggerResponse,
   PatientSearchResponse,
@@ -23,7 +24,10 @@ const PatientDiscovery: React.FC<PatientDiscoveryProps> = ({ activeToken }) => {
   const [searching, setSearching] = useState(false);
   const [triggering, setTriggering] = useState(false);
 
-  const canCallPatientApis = useMemo(() => Boolean(activeToken && activeToken.trim() !== ''), [activeToken]);
+  const canCallPatientApis = useMemo(
+    () => isApiConfigured && Boolean(activeToken && activeToken.trim() !== ''),
+    [activeToken],
+  );
 
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -87,7 +91,10 @@ const PatientDiscovery: React.FC<PatientDiscoveryProps> = ({ activeToken }) => {
           <button type="submit" disabled={!canCallPatientApis || searching}>
             {searching ? 'Submitting…' : 'POST /api/patient/search'}
           </button>
-          {!canCallPatientApis && <p className="warning">Issue a token before initiating patient search.</p>}
+          {!isApiConfigured && <p className="warning">{apiConfigurationErrorMessage}</p>}
+          {isApiConfigured && !canCallPatientApis && (
+            <p className="warning">Issue a token before initiating patient search.</p>
+          )}
           {searchError && <p className="error">{searchError}</p>}
           {searchResult && (
             <div>
@@ -118,7 +125,10 @@ const PatientDiscovery: React.FC<PatientDiscoveryProps> = ({ activeToken }) => {
           <button type="submit" disabled={!canCallPatientApis || triggering}>
             {triggering ? 'Triggering…' : 'POST /api/pd/trigger'}
           </button>
-          {!canCallPatientApis && <p className="warning">Tokens are required before orchestrating discovery.</p>}
+          {!isApiConfigured && <p className="warning">{apiConfigurationErrorMessage}</p>}
+          {isApiConfigured && !canCallPatientApis && (
+            <p className="warning">Tokens are required before orchestrating discovery.</p>
+          )}
           {triggerError && <p className="error">{triggerError}</p>}
           {triggerResult && (
             <div>
