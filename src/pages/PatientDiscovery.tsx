@@ -35,8 +35,14 @@ const PatientDiscovery: React.FC<PatientDiscoveryProps> = ({ activeToken }) => {
     setSearchResult(null);
     try {
       const parsed = parseJsonObject(criteriaInput);
-      const payload = parsed.criteria ? parsed : { criteria: parsed };
-      const result = await submitPatientSearch({ criteria: payload.criteria });
+      const criteria =
+        'criteria' in parsed &&
+        parsed.criteria !== null &&
+        typeof parsed.criteria === 'object' &&
+        !Array.isArray(parsed.criteria)
+          ? (parsed.criteria as Record<string, unknown>)
+          : parsed;
+      const result = await submitPatientSearch({ criteria });
       setSearchResult(result);
     } catch (searchErr) {
       setSearchError(searchErr instanceof Error ? searchErr.message : 'Unable to trigger patient search');
