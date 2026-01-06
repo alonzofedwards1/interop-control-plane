@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  interop-control-plane:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: interop-control-plane
+    restart: unless-stopped
+    networks:
+      - interop-net
+
+networks:
+  interop-net:
+    external: true
